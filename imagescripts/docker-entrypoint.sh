@@ -30,7 +30,7 @@ function updateBitbucketProperties() {
 }
 
 function processBitbucketProxySettings() {
-  if [ -n "${BITBUCKET_CONTEXT_PATH}" ] || [ -n "${BITBUCKET_PROXY_NAME}" ] || [ -n "${BITBUCKET_PROXY_PORT}" ] || [ -n "${BITBUCKET_DELAYED_START}" ]; then
+  if [ -n "${BITBUCKET_CONTEXT_PATH}" ] || [ -n "${BITBUCKET_PROXY_NAME}" ] || [ -n "${BITBUCKET_PROXY_PORT}" ] || [ -n "${BITBUCKET_DELAYED_START}" ] || [ -n "${ELASTICSEARCH_NETWORK_HOST}" ]; then
     if [ ! -f ${BITBUCKET_HOME}/bitbucket.properties ]; then
       touch ${BITBUCKET_HOME}/bitbucket.properties
     fi
@@ -60,6 +60,13 @@ function processBitbucketProxySettings() {
     fi
   fi
 }
+
+if [ -n "${ELASTICSEARCH_NETWORK_HOST}" ]; then
+  umask 0027
+  exec ${BITBUCKET_INSTALL}/bin/start-bitbucket.sh -fg
+  sleep 45
+  updateBitbucketProperties ${BITBUCKET_HOME}/shared/search/elasticsearch.yml "network host" ${ELASTICSEARCH_NETWORK_HOST}
+fi
 
 if [ -n "${BITBUCKET_DELAYED_START}" ]; then
   sleep ${BITBUCKET_DELAYED_START}
